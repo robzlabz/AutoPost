@@ -1,0 +1,1 @@
+<?php echo 'Someting that i can\'t find in the front of me'; ?>
