@@ -12,26 +12,20 @@ function fe($s) { return function_exists($s); }
 function je($s) { return json_encode($s); }
 
 add_action('admin_menu','agcm_addmenu');
-function agcm_addmenu() {
-    add_dashboard_page('AgcManager Connector', 'AGCM Connector', 'manage_options', 'agcm_index', 'agcm_index', plugins_url( 'tc.ico', __FILE__ ));
-}
-
-function agcm_index() {
-    include __DIR__ . '/views/index.php';
-}
+function agcm_addmenu() {add_dashboard_page('Agc Manager Connector', 'AGCM Connector', 'manage_options', 'agcm_index', 'agcm_index', plugins_url( 'tc.ico', __FILE__ ));}
+function agcm_index() {include (__DIR__ . '/views/index.php');}
 
 function agcm_function(){
     $auth = get_option('agcm_authorization_key', '__auth__');
     if(isset($_POST['__agcmanager__' . get_option('agcm_token')])){ 
-        el(serialize($_POST));
         if(isset($_POST['_p_'])){
             el('[' . date('d-m-y H:i:s') . '] Create Post ' . $_POST['title']);
-            $cid = 0; /* BUAT CETGORY */
+            $cat = array(c_cat($_POST['category']));
             $pid = wp_insert_post(array(
                 'post_title' => $_POST['title'],
-                'post_category' => array($cid),
+                'post_category' => $cat,
                 'post_name'  => sanitize_title_with_dashes($_POST['title']),
-                'post_status' => 'draft',
+                'post_status' => 'private',
                 'post_author' => 1 
             ));
             if(empty($pid)) {
@@ -40,17 +34,15 @@ function agcm_function(){
                 wp_set_post_tags($pid, $_POST['tags']);
                 echo json_encode(array('status' => 'ok','pid' => $pid));
             }
-        } elseif(isset($_POST['_at_'])) { // download image
-
+        } elseif(isset($_POST['_at_'])) { 
             $atitle = remove_accents($_POST['atitle']);
             $pp = $_POST['pid'];
             $uimg = $_POST['image'];
 
             list($r, $e) = explode('&', $uimg);
             $uimg = urldecode(substr($r, 35, strlen($r)-1));
-            el($uimg);
 
-            el('[' . date('d-m-y H:i:s') . '] Posting Attachment ' . $_POST['atitle'] . ' - ' . $uimg);
+            el('[' . date('d-m-y H:i:s') . '] Posting Attachment ' . $atitle . ' - ' . $uimg);
 
             $ext = explode('.', $uimg);
             $ext = end($ext);
@@ -71,24 +63,33 @@ function agcm_function(){
                     'post_date'      =>  $_POST['date']
                 );
 
-                $attach_id = wp_insert_attachment( $attachment, $fimg, $pp );
+                $aid = wp_insert_attachment( $attachment, $fimg, $pp );
 
                 require_once( ABSPATH . 'wp-admin/includes/image.php' );
 
-                $attach_data = wp_generate_attachment_metadata( $attach_id, $fimg );
-                wp_update_attachment_metadata( $attach_id, $attach_data );
+                $attach_data = wp_generate_attachment_metadata( $aid, $fimg );
+                wp_update_attachment_metadata( $aid, $attach_data );
 
-                set_post_thumbnail( $pp, $attach_id );
+                set_post_thumbnail( $pp, $aid );
 
-                if(empty($attach_id)) {
-                    echo json_encode(array('status' => 'err', 'message' => 'failed to create attachment'));
+                if(empty($aid)) {
+                    echo je(array('status' => 'err', 'message' => 'failed to create attachment'));
                 } else {
-                    echo json_encode(array('status' => 'ok', 'aid' => $attach_id));
+                    if(isset($_POST['insert_content']) && $_POST['insert_content'] == 'y') {
+                        $p = get_post($pp);
+                        $al = get_permalink($aid);
+                        $c = $p->post_content . 
+                        '<a href="'.$al.'">'
+                            .wp_get_attachment_image($aid, 'full', false, array('alt' => $atitle)).   
+                        "</a>\n".$atitle."\n";
+                        wp_update_post(array('ID' => $pp, 'post_content' => $c));
+                    }
+                    echo je(array('status' => 'ok', 'aid' => $aid));
                 }
                 exit;
             }
 
-            echo json_encode(array('status' => 'err', 'message' => 'Failed to save image'));
+            echo je(array('status' => 'err', 'message' => 'Failed to save image'));
         } else if(isset($_POST['_pu_'])) {
             wp_update_post(array(
                 'ID' => $_POST['pid'],
@@ -116,6 +117,15 @@ add_action('init', 'agcm_function');
 
 
 if( ! fe('sample') ) { function sample(){/* code here */}};
+
+if( ! fe('c_cat') ) { function c_cat($name){
+    if(($t = get_term_by('name', $name, 'category')) != false) {
+        return (int) $t->term_id;
+    } else {
+        $t = wp_insert_term($name,'category');
+        return $t->term_id;
+    }
+}};
 
 if( ! fe('gt') ) { function gt(){return base64_encode(rand(0,9999).'_agc'.rand(0,9999).'manager_'.rand(0,9999));}};
 if( ! fe('cmz') ) { function cmz($d){ return preg_replace(array('/[\s]+/'), ' ', $d); }};
