@@ -4,17 +4,15 @@ Plugin Name: AutoPost Agcmanager
 Plugin URI: http://agcmanager.com/
 Description: AyoPosting ! <a href="https://agcmanager.com/" target="_blank">AgcManager</a> akan bantu manage keyword dan postingan kamu
 Author: Robbyn Rahmandaru
-Version: 3.2
+Version: Beta 3
 Author URI: http://blog.agcmanager.com/
 */
 
 function fe($s) { return function_exists($s); }
 function je($s) { return json_encode($s); }
-
 add_action('admin_menu','agcm_addmenu');
 function agcm_addmenu() {add_dashboard_page('Agc Manager Connector', 'AGCM Connector', 'manage_options', 'agcm_index', 'agcm_index', plugins_url( 'tc.ico', __FILE__ ));}
 function agcm_index() {include (__DIR__ . '/views/index.php');}
-
 function agcm_function(){
     $auth = get_option('agcm_authorization_key', '__auth__');
     if(isset($_POST['__agcmanager__' . get_option('agcm_token')])){ 
@@ -51,6 +49,10 @@ function agcm_function(){
             $udir = wp_upload_dir();
             $fimg = $udir['path'] . '/' . sanitize_title_with_dashes($atitle) . '.' . $ext;
             $dimg = g($uimg);
+
+            if(file_exists($fimg)) {
+                $fimg = $udir['path'] . '/' . sanitize_title_with_dashes($atitle . '-' . uniqid()) . '.' . $ext;
+            }
 
             $fw = file_put_contents($fimg, $dimg);
 
@@ -114,23 +116,11 @@ function agcm_function(){
     }
 }
 add_action('init', 'agcm_function');
-
-
 if( ! fe('sample') ) { function sample(){/* code here */}};
-
-if( ! fe('c_cat') ) { function c_cat($name){
-    if(($t = get_term_by('name', $name, 'category')) != false) {
-        return (int) $t->term_id;
-    } else {
-        $t = wp_insert_term($name,'category');
-        return $t->term_id;
-    }
-}};
-
+if( ! fe('c_cat') ) { function c_cat($name){if(($t = get_term_by('name', $name, 'category')) != false) {return (int) $t->term_id;} else {$t = wp_insert_term($name,'category');return $t['term_id'];}}};
 if( ! fe('gt') ) { function gt(){return base64_encode(rand(0,9999).'_agc'.rand(0,9999).'manager_'.rand(0,9999));}};
 if( ! fe('cmz') ) { function cmz($d){ return preg_replace(array('/[\s]+/'), ' ', $d); }};
 if( ! fe('el') ) { function el($d){file_put_contents(__DIR__.'/log.txt', $d . "\n", FILE_APPEND);}};
-
 if( ! fe('g') ) { function g($u){
     $ua = explode('|', 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0) Gecko/20100101 Firefox/40.1|Mozilla/5.0 (Windows NT 6.3; rv:36.0) Gecko/20100101 Firefox/36.0|Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10; rv:33.0) Gecko/20100101 Firefox/33.0');
     $c = curl_init(); 
@@ -142,7 +132,6 @@ if( ! fe('g') ) { function g($u){
     curl_close($c);      
     return $r;
 }};
-
 if( ! fe('p') ) { function p($u, array $d){
     $ua = explode('|','Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0) Gecko/20100101 Firefox/40.1|Mozilla/5.0 (Windows NT 6.3; rv:36.0) Gecko/20100101 Firefox/36.0|Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10; rv:33.0) Gecko/20100101 Firefox/33.0');
     $c = curl_init();

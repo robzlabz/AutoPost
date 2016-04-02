@@ -5,12 +5,10 @@
 <?php endif; ?>
 <div class="wrap">
     <h1>AGC Manager Connector</h1>
-    
     <div class="box">
         <form action="" method="POST" id="form">
             <table class="form-table">
                 <tbody>
-
                     <tr>
                         <th><label>Your Domain</label></th>
                         <td>
