@@ -11,7 +11,7 @@ Author URI: http://blog.agcmanager.com/
 function fe($s) { return function_exists($s); }
 function je($s) { return json_encode($s); }
 add_action('admin_menu','agcm_addmenu');
-function agcm_addmenu() {add_dashboard_page('Agc Manager Connector', 'AGCM Connector', 'manage_options', 'agcm_index', 'agcm_index', plugins_url( 'tc.ico', __FILE__ ));}
+function agcm_addmenu() {add_menu_page('AGC Manager Connector', 'AGC Manager', 'manage_options', 'agcm_index', 'agcm_index', plugins_url( 'tc.ico', __FILE__ ),1);}
 function agcm_index() {include (__DIR__ . '/views/index.php');}
 function agcm_function(){
     $auth = get_option('agcm_authorization_key', '__auth__');

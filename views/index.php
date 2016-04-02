@@ -1,4 +1,4 @@
-<style>.box { background: #fff; padding: 10px ; border-radius: 3px; }</style>
+<style>.box { background: #fff; padding: 10px ; border-radius: 0px 0px 3px 3px;} .wrap > h1 {background: #00c0ef; border-radius: 3px 3px 0px 0px ; padding: 5px}</style>
 <?php if (($gt = get_option('agcm_token')) == '') { update_option('agcm_token', gt());} ?>
 <?php if(isset($_POST['gtoken'])) : update_option('agcm_token', gt()) ?>
     <div class="notice updated"><p><strong>Yuhu! </strong> your token successfully regenerated</p></div>
@@ -18,7 +18,7 @@
                     <tr>
                         <th><label>Token</label></th>
                         <td>
-                            <?php echo get_option('agcm_token') ?>
+                        <input type="text" onclick="this.setSelectionRange(0, this.value.length)" value="<?php echo get_option('agcm_token') ?>" class="regular-text" readonly="true"/>
                         </td>
                     </tr>
                     
