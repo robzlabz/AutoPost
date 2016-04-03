@@ -4,7 +4,7 @@ Plugin Name: AutoPost Agcmanager
 Plugin URI: http://agcmanager.com/
 Description: AyoPosting ! <a href="https://agcmanager.com/" target="_blank">AgcManager</a> akan bantu manage keyword dan postingan kamu
 Author: Robbyn Rahmandaru
-Version: Beta 3
+Version: Beta 4
 Author URI: http://blog.agcmanager.com/
 */
 
@@ -36,9 +36,6 @@ function agcm_function(){
             $atitle = remove_accents($_POST['atitle']);
             $pp = $_POST['pid'];
             $uimg = $_POST['image'];
-
-            list($r, $e) = explode('&', $uimg);
-            $uimg = urldecode(substr($r, 35, strlen($r)-1));
 
             el('[' . date('d-m-y H:i:s') . '] Posting Attachment ' . $atitle . ' - ' . $uimg);
 
@@ -90,7 +87,6 @@ function agcm_function(){
                 }
                 exit;
             }
-
             echo je(array('status' => 'err', 'message' => 'Failed to save image'));
         } else if(isset($_POST['_pu_'])) {
             wp_update_post(array(
